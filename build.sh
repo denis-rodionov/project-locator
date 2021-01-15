@@ -1,0 +1,1 @@
+docker build . -t deniu7/project-grabber:tagname
