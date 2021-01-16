@@ -7,7 +7,14 @@ from selenium.webdriver.chrome.options import Options
 
 URL = 'https://gulp.de/'
 CHROME_PATH = '/usr/local/bin/chromedriver'
-
+FIELD_MAP = {
+        "publication_time": "Veröffentlicht am",
+        "location": "Einsatzort",
+        "gulp_job_id": "Job-ID",
+        "start": "Beginn",
+        "duration": "Dauer",
+        "description": "Beschreibung"
+    }
 
 def find_projects(search_query, is_headless):
     if is_headless:
@@ -29,13 +36,29 @@ def find_projects(search_query, is_headless):
     page = 1
     found_projects = []
     while True:
-        project_links = find_objects(driver, "//app-project-view/div/div/div[2]/h2/a")
+        viewed_links = []
+        project_links_path = "//app-project-view/div/div/div[2]/h2/a"
+        project_links = find_objects(driver, project_links_path)
 
-        for link in project_links:
-            found_projects.append(link.text)
+        index = 0
+        while len(project_links) > len(viewed_links):
+            link = project_links[index]
+            index += 1
+            if link.text in viewed_links:
+                continue
+            else:
+                project_title = link.text
+                print("Grabbing project '%s'" % project_title)
+                viewed_links.append(project_title)
+                # go to the project page
+                link.click()
+                found_projects.append(grab_project(driver, project_title))
+                # go back in history
+                driver.execute_script("window.history.go(-1)")
+                project_links = find_objects(driver, project_links_path)
 
-        next_button = find(driver, "//a[@class='next']")
-        if next_button.find_element(By.XPATH, "..").get_attribute("class") != "disabled":
+        next_button = find(driver, "//a[@class='next']", By.XPATH, False)
+        if next_button and next_button.find_element(By.XPATH, "..").get_attribute("class") != "disabled":
             page += 1
             print("waiting page %d to open..." % page)
             next_button.click()
@@ -48,6 +71,35 @@ def find_projects(search_query, is_headless):
     return found_projects
 
 
+def grab_project(driver, title):
+    project = {}
+    fields = find_objects(driver, "//app-display-readonly-value")
+    parsed = {}
+    for field in fields:
+        splited = field.text.split("\n")
+        if len(splited) == 2:
+            parsed[splited[0]] = splited[1]
+
+    project["title"] = title
+    project["source"] = "gulp"
+    project["url"] = driver.current_url
+    assign_field(project, parsed, "publication_time")
+    assign_field(project, parsed, "location")
+    assign_field(project, parsed, "gulp_job_id")
+    assign_field(project, parsed, "start")
+    assign_field(project, parsed, "duration")
+    assign_field(project, parsed, "description")
+
+    return project
+
+
+def assign_field(result_dict, parsed_input, field_name):
+    mapped_name = FIELD_MAP[field_name]
+    parsed_value = parsed_input.get(mapped_name)
+    if parsed_value:
+        result_dict[field_name] = parsed_value
+
+
 def build_page_link_path(page_number):
     return "//app-paginated-list[@class='ng-star-inserted']/app-paginator/div/div/ul/div/li[*][" \
            "@class='ng-star-inserted active']/a[text()=%d]" % page_number
@@ -58,7 +110,11 @@ def find(driver, query, search_method=By.XPATH, wait=True):
     if wait:
         return WebDriverWait(driver, 10).until(EC.presence_of_element_located((search_method, query)))
     else:
-        return driver.find_element(search_method, query)
+        res = driver.find_elements(search_method, query)
+        if len(res) == 0:
+            return None
+        else:
+            return res[0]
 
 
 def find_objects(driver, query, search_method=By.XPATH):
@@ -67,7 +123,11 @@ def find_objects(driver, query, search_method=By.XPATH):
 
 
 if __name__ == '__main__':
-    projects = find_projects("java", True)
+    projects = find_projects("python", True)
     print("\nRESULTS:")
-    print("\n".join(projects))
+    for project in projects:
+        print(project["title"])
+        for key, value in project.items():
+            if key != "title":
+                print("  %s: %s" % (key, value))
     print("Total %d projects!" % len(projects))
