@@ -90,6 +90,10 @@ def grab_project(driver, title):
     assign_field(project, parsed, "duration")
     assign_field(project, parsed, "description")
 
+    project["description"] = find(driver, "//app-display-readonly-value[@class='gp-project-description']/div/div[2]").text
+    project["skills"] = list(map(lambda x: x.text,
+                                 find_objects(driver, "//app-readonly-tags-selection/div/div[2]/div/div")))
+
     return project
 
 
