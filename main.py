@@ -126,12 +126,21 @@ def find_objects(driver, query, search_method=By.XPATH):
     return WebDriverWait(driver, 10).until(EC.presence_of_all_elements_located((search_method, query)))
 
 
-if __name__ == '__main__':
-    projects = find_projects("python", True)
+def info_print(projects):
     print("\nRESULTS:")
     for project in projects:
         print(project["title"])
         for key, value in project.items():
             if key != "title":
                 print("  %s: %s" % (key, value))
+
     print("Total %d projects!" % len(projects))
+
+
+if __name__ == '__main__':
+    projects = find_projects("python", True)
+    for project in projects:
+        dynamodb.create_project(project)
+
+    print("All the new projects are added!")
+
