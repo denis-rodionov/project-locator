@@ -3,7 +3,7 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.options import Options
-
+import dynamodb
 
 URL = 'https://gulp.de/'
 CHROME_PATH = '/usr/local/bin/chromedriver'
@@ -16,10 +16,12 @@ FIELD_MAP = {
         "description": "Beschreibung"
     }
 
+
 def find_projects(search_query, is_headless):
     if is_headless:
         chrome_options = Options()
         chrome_options.add_argument("--headless")
+        chrome_options.add_argument("--no-sandbox")
     else:
         chrome_options = None
 
@@ -138,7 +140,7 @@ def info_print(projects):
 
 
 if __name__ == '__main__':
-    projects = find_projects("python", True)
+    projects = find_projects("golang", True)
     for project in projects:
         dynamodb.create_project(project)
 
