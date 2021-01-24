@@ -3,17 +3,24 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.options import Options
+from datetime import datetime
+
 import dynamodb
 
 URL = 'https://gulp.de/'
 CHROME_PATH = '/usr/local/bin/chromedriver'
 FIELD_MAP = {
-        "publication_time": "Veröffentlicht am",
-        "location": "Einsatzort",
-        "gulp_job_id": "Job-ID",
-        "start": "Beginn",
-        "duration": "Dauer",
-        "description": "Beschreibung"
+        "Veröffentlicht am": "publication_time",
+        "Einsatzort": "location",
+        "Job-ID": "gulp_job_id",
+        "Beginn": "start",
+        "Dauer": "duration",
+        "Projekt-Beschreibung": "description",
+        "Beschreibung": "description",
+        "Titel": "title",
+        "Projekt-Titel": "title",
+        "Projekt-Rolle": "role",
+        "Auslastung": "load"
     }
 
 
@@ -79,31 +86,39 @@ def grab_project(driver, title):
     parsed = {}
     for field in fields:
         splited = field.text.split("\n")
-        if len(splited) == 2:
-            parsed[splited[0]] = splited[1]
+        if len(splited) > 1:
+            parsed[splited[0]] = "\n".join(splited[1:])
 
-    project["title"] = title
     project["source"] = "gulp"
     project["url"] = driver.current_url
-    assign_field(project, parsed, "publication_time")
-    assign_field(project, parsed, "location")
-    assign_field(project, parsed, "gulp_job_id")
-    assign_field(project, parsed, "start")
-    assign_field(project, parsed, "duration")
-    assign_field(project, parsed, "description")
 
-    project["description"] = find(driver, "//app-display-readonly-value[@class='gp-project-description']/div/div[2]").text
+    for parsed_key, parsed_value in parsed.items():
+        domain_property = FIELD_MAP.get(parsed_key)
+        if domain_property:
+            project[domain_property] = parsed_value
+        else:
+            print("UNKNOWN FIELD:", parsed_key)
+
+    description = find(driver, "//app-display-readonly-value[@class='gp-project-description']/div/div[2]", By.XPATH,
+                       False)
+    if description:
+        project["description"] = description.text
+
+    if not project["title"]:
+        project["title"] = title
+
+    publication_time = project['publication_time']
+    if publication_time:
+        try:
+            project['publication_timestamp'] = \
+                int(datetime.strptime(publication_time, '%d.%m.%Y %H:%M h').timestamp())
+        except Exception as err:
+            print(f"ERROR: cannot parse publication date '{publication_time}': {err}")
+
     project["skills"] = list(map(lambda x: x.text,
                                  find_objects(driver, "//app-readonly-tags-selection/div/div[2]/div/div")))
 
     return project
-
-
-def assign_field(result_dict, parsed_input, field_name):
-    mapped_name = FIELD_MAP[field_name]
-    parsed_value = parsed_input.get(mapped_name)
-    if parsed_value:
-        result_dict[field_name] = parsed_value
 
 
 def build_page_link_path(page_number):
@@ -141,6 +156,7 @@ def info_print(projects):
 
 if __name__ == '__main__':
     projects = find_projects("golang", True)
+    #info_print(projects)
     for project in projects:
         dynamodb.create_project(project)
 
