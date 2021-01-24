@@ -158,7 +158,7 @@ if __name__ == '__main__':
     projects = find_projects("golang", True)
     #info_print(projects)
     for project in projects:
-        dynamodb.create_project(project)
+        dynamodb.create_project_if_not_exists(project)
 
     print("All the new projects are added!")
 
