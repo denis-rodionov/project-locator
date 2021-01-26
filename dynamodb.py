@@ -6,6 +6,7 @@ from boto3.dynamodb.conditions import Key
 
 PROJECTS_TABLE = 'pl_projects'
 
+
 def create_project(project):
     print("DynamoDB: saving project:", project['title'])
     dynamodb = boto3.resource('dynamodb')
@@ -22,8 +23,8 @@ def create_project_if_not_exists(project):
         print(f"project with URL {project['url']} already in the database")
         return None
     else:
-        create_project(project)
         print(f"project saved! (URL: {project['url']})")
+        return create_project(project)
 
 
 def find_project_by_url(url):

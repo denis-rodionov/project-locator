@@ -20,7 +20,11 @@ FIELD_MAP = {
         "Titel": "title",
         "Projekt-Titel": "title",
         "Projekt-Rolle": "role",
-        "Auslastung": "load"
+        "Auslastung": "load",
+        "Projektanbieter": "project_provider",
+        "Remote": "Remote",
+        "Stundensatz": "rate",
+        "Skills": "skills"
     }
 
 
@@ -45,26 +49,35 @@ def find_projects(search_query, is_headless):
     page = 1
     found_projects = []
     while True:
+        print(f"Parsing page {page}...")
         viewed_links = []
         project_links_path = "//app-project-view/div/div/div[2]/h2/a"
         project_links = find_objects(driver, project_links_path)
 
-        index = 0
         while len(project_links) > len(viewed_links):
-            link = project_links[index]
-            index += 1
-            if link.text in viewed_links:
-                continue
+            print(f"DEBUG: project_links={len(project_links)}, viewed={len(viewed_links)}, page={page}")
+            print("searching for not viewed project...")
+            current_link = None
+            for link in project_links:
+                if link.id not in viewed_links:
+                    current_link = link
+            if not current_link:
+                print("ERROR: cannot find not viewed project!")
+
+            project_title = current_link.text
+            print("Grabbing project '%s'" % project_title)
+            viewed_links.append(current_link.id)
+            # go to the project page
+            current_link.click()
+            parsed_project = grab_project_safe(driver, project_title, search_query)
+            if parsed_project:
+                found_projects.append(parsed_project)
             else:
-                project_title = link.text
-                print("Grabbing project '%s'" % project_title)
-                viewed_links.append(project_title)
-                # go to the project page
-                link.click()
-                found_projects.append(grab_project(driver, project_title, search_query))
-                # go back in history
-                driver.execute_script("window.history.go(-1)")
-                project_links = find_objects(driver, project_links_path)
+                print("Skipping project because of an error")
+
+            # go back in history
+            driver.execute_script("window.history.go(-1)")
+            project_links = find_objects(driver, project_links_path)
 
         next_button = find(driver, "//a[@class='next']", By.XPATH, False)
         if next_button and next_button.find_element(By.XPATH, "..").get_attribute("class") != "disabled":
@@ -78,6 +91,14 @@ def find_projects(search_query, is_headless):
 
     driver.quit()
     return found_projects
+
+
+def grab_project_safe(driver, title, search_query):
+    try:
+        return grab_project(driver, title, search_query)
+    except Exception as ex:
+        print(f"ERROR: could not parse project {title}: {ex}")
+        return None
 
 
 def grab_project(driver, title, search_query):
@@ -160,10 +181,14 @@ def info_print(projects):
 
 
 if __name__ == '__main__':
-    projects = find_projects("golang", True)
+    query = "java"
+    projects = find_projects(query, True)
     #info_print(projects)
+    added = 0
     for project in projects:
-        dynamodb.create_project_if_not_exists(project)
+        added_project = dynamodb.create_project_if_not_exists(project)
+        if added_project:
+            added += 1
 
-    print("All the new projects are added!")
+    print(f"By query '{query}' found {len(projects)} projects. Added to database: {added}")
 
