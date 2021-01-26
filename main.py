@@ -117,7 +117,8 @@ def grab_project(driver, title, search_query):
             print(f"ERROR: cannot parse publication date '{publication_time}': {err}")
 
     project["skills"] = list(map(lambda x: x.text,
-                                 find_objects(driver, "//app-readonly-tags-selection/div/div[2]/div/div")))
+                                 find_objects(driver, "//app-readonly-tags-selection/div/div[2]/div/div",
+                                              By.XPATH, False)))
 
     return project
 
@@ -139,9 +140,12 @@ def find(driver, query, search_method=By.XPATH, wait=True):
             return res[0]
 
 
-def find_objects(driver, query, search_method=By.XPATH):
+def find_objects(driver, query, search_method=By.XPATH, wait=True):
     print("searching for element", query)
-    return WebDriverWait(driver, 10).until(EC.presence_of_all_elements_located((search_method, query)))
+    if wait:
+        return WebDriverWait(driver, 10).until(EC.presence_of_all_elements_located((search_method, query)))
+    else:
+        return driver.find_elements(search_method, query)
 
 
 def info_print(projects):
