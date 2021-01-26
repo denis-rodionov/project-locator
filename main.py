@@ -61,7 +61,7 @@ def find_projects(search_query, is_headless):
                 viewed_links.append(project_title)
                 # go to the project page
                 link.click()
-                found_projects.append(grab_project(driver, project_title))
+                found_projects.append(grab_project(driver, project_title, search_query))
                 # go back in history
                 driver.execute_script("window.history.go(-1)")
                 project_links = find_objects(driver, project_links_path)
@@ -80,7 +80,7 @@ def find_projects(search_query, is_headless):
     return found_projects
 
 
-def grab_project(driver, title):
+def grab_project(driver, title, search_query):
     project = {}
     fields = find_objects(driver, "//app-display-readonly-value")
     parsed = {}
@@ -91,6 +91,7 @@ def grab_project(driver, title):
 
     project["source"] = "gulp"
     project["url"] = driver.current_url
+    project["search_query"] = search_query
 
     for parsed_key, parsed_value in parsed.items():
         domain_property = FIELD_MAP.get(parsed_key)
