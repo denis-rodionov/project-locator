@@ -183,10 +183,12 @@ def info_print(projects):
 if __name__ == '__main__':
     query = "java"
     projects = find_projects(query, True)
-    #info_print(projects)
+    info_print(projects)
     added = 0
+    print("Saving the results into the database...")
     for project in projects:
         added_project = dynamodb.create_project_if_not_exists(project)
+        #added_project = None
         if added_project:
             added += 1
 
