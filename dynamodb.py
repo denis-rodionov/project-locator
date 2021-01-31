@@ -14,7 +14,8 @@ def create_project(project):
     project['id'] = str(uuid.uuid4())
     project['createdAt'] = calendar.timegm(time.gmtime())   # utc timestamp in sec
     response = table.put_item(Item=project)
-    print(response)
+    print("DEBUG: dynamodb response:", response)
+    return response
 
 
 def create_project_if_not_exists(project):

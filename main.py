@@ -59,14 +59,15 @@ def find_projects(search_query, is_headless):
             print("searching for not viewed project...")
             current_link = None
             for link in project_links:
-                if link.id not in viewed_links:
+                if link.get_attribute("href") not in viewed_links:
                     current_link = link
+                    break
             if not current_link:
                 print("ERROR: cannot find not viewed project!")
 
             project_title = current_link.text
             print("Grabbing project '%s'" % project_title)
-            viewed_links.append(current_link.id)
+            viewed_links.append(current_link.get_attribute("href"))
             # go to the project page
             current_link.click()
             parsed_project = grab_project_safe(driver, project_title, search_query)
