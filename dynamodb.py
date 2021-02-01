@@ -13,6 +13,7 @@ def create_project(project):
     table = dynamodb.Table(PROJECTS_TABLE)
     project['id'] = str(uuid.uuid4())
     project['createdAt'] = calendar.timegm(time.gmtime())   # utc timestamp in sec
+    project['exclude_from_search'] = 0
     response = table.put_item(Item=project)
     print("DEBUG: dynamodb response:", response)
     return response
