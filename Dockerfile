@@ -24,4 +24,4 @@ RUN pip install selenium
 RUN mkdir /code
 ADD . /code
 RUN pip install -r /code/requirements.txt
-ENTRYPOINT ["python", "/code/main.py"]
+ENTRYPOINT ["python", "/code/main.py", "gulp", "java"]
