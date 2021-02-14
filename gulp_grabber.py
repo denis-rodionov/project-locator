@@ -19,7 +19,7 @@ FIELD_MAP = {
         "Projekt-Rolle": "role",
         "Auslastung": "load",
         "Projektanbieter": "project_provider",
-        "Remote": "Remote",
+        "Remote": "remote",
         "Stundensatz": "rate",
         "Skills": "skills"
     }
