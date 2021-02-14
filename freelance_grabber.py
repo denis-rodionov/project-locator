@@ -44,7 +44,7 @@ def find_projects(search_query, is_headless):
     link_num = 0
     for link in links:
         link_num += 1
-        print(f"Parsing project #{link_num}...")
+        print(f"Parsing project #{link_num} {link.text}...")
         helpers.open_new_tab(driver, helpers.get_link_url(link))
 
         projects.append(parse_project(driver, search_query))
