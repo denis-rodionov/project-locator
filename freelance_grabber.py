@@ -87,7 +87,7 @@ def parse_project_details(driver, project):
         title = title_elements[0].get_attribute("data-original-title")
 
         if title == "Remote-Einsatz möglich":
-            project["location"] = project["location"] + " (Remote)"
+            project["remote"] = "possible"
             continue
 
         domain_field_name = FIELD_MAP.get(title)
