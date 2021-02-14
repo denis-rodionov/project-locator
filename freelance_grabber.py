@@ -75,6 +75,13 @@ def parse_project(driver, search_query):
     skills_elements = helpers.find_objects(driver, "//div/ul/li[*]/ul/li[*]/a", By.XPATH, False)
     project['skills'] = list(map(lambda x: x.text, skills_elements))
 
+    # find out timestamp
+    if project.get('publication_time'):
+        project['publication_timestamp'] = \
+            helpers.string_to_timestamp(project['publication_time'], '%d.%m.%Y')
+    else:
+        print("WARNING: no publication_time found")
+
     return project
 
 

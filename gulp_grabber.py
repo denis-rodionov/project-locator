@@ -1,7 +1,5 @@
 from selenium.webdriver.common.by import By
 
-from datetime import datetime
-
 import helpers
 
 URL = 'https://gulp.de/'
@@ -121,13 +119,11 @@ def grab_project(driver, title, search_query):
     if not project["title"]:
         project["title"] = title
 
-    publication_time = project['publication_time']
-    if publication_time:
-        try:
-            project['publication_timestamp'] = \
-                int(datetime.strptime(publication_time, '%d.%m.%Y %H:%M h').timestamp())
-        except Exception as err:
-            print(f"ERROR: cannot parse publication date '{publication_time}': {err}")
+    if project.get('publication_time'):
+        project['publication_timestamp'] = \
+            helpers.string_to_timestamp(project['publication_time'], '%d.%m.%Y %H:%M h')
+    else:
+        print("WARNING: no publication_time found")
 
     project["skills"] = list(map(lambda x: x.text,
                                  helpers.find_objects(driver, "//app-readonly-tags-selection/div/div[2]/div/div",

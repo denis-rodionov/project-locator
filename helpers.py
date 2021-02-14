@@ -4,6 +4,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.options import Options
 from selenium import webdriver
 import os
+from datetime import datetime
 
 
 CHROME_LINUX_PATH = '/usr/local/bin/chromedriver'
@@ -57,3 +58,11 @@ def close_tab(driver):
 
 def get_link_url(link):
     return link.get_attribute("href")
+
+
+def string_to_timestamp(str_time, time_format):
+    try:
+        return int(datetime.strptime(str_time, time_format).timestamp())
+    except Exception as err:
+        print(f"ERROR: cannot parse publication date '{str_time}' using format {time_format}: {err}")
+        return None
