@@ -1,7 +1,6 @@
 from typing import Dict, List, Any, Union
 
 import helpers
-from selenium.webdriver.common.keys import Keys
 import time
 import os
 from selenium.webdriver.common.by import By
@@ -24,14 +23,20 @@ def find_projects(search_query, is_headless):
     username = os.environ.get("FREELANCE_DE_USER")
     password = os.environ.get("FREELANCE_DE_PASSWORD")
     if not username or not password:
-        #print()
         raise Exception("ERROR: one of the env the variables are missing: FREELANCE_DE_USER and FREELANCE_DE_PASSWORD")
     login(driver, username, password)
 
     driver.get(URL)
+
+    # search by the given query
     helpers.find(driver, "//*[@id='__search_freetext']").send_keys(search_query)
     helpers.find(driver, "//*[@id='search_simple']").click()
 
+    # sort by date
+    helpers.find(driver, "//button[@data-id='__search_sort_by_remote']").click()
+    helpers.find(driver, "//span/div/div/ul/li[2]/a").click()
+
+    # parsing project links
     links = helpers.find_objects(driver, "//div[@class='freelancer-content']/h3/a")
 
     projects = []
