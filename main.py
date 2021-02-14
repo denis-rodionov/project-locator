@@ -2,7 +2,9 @@ import sys
 
 import dynamodb
 import gulp_grabber
+import freelance_grabber
 
+HEADLESS = True
 
 def info_print(projects):
     print("\nRESULTS:")
@@ -28,7 +30,11 @@ if __name__ == '__main__':
 
     projects = []
     if source == 'gulp':
-        projects = gulp_grabber.find_projects(query, True)
+        projects = gulp_grabber.find_projects(query, HEADLESS)
+    elif source == 'freelance_de':
+        projects = freelance_grabber.find_projects(query, HEADLESS)
+    else:
+        print("ERROR: source is unknown:", source)
 
     info_print(projects)
     added = 0

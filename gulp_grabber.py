@@ -1,12 +1,11 @@
-from selenium import webdriver
 from selenium.webdriver.common.by import By
-from selenium.webdriver.chrome.options import Options
+
 from datetime import datetime
 
 import helpers
 
 URL = 'https://gulp.de/'
-CHROME_PATH = '/usr/local/bin/chromedriver'
+
 FIELD_MAP = {
         "Veröffentlicht am": "publication_time",
         "Einsatzort": "location",
@@ -28,14 +27,8 @@ FIELD_MAP = {
 
 def find_projects(search_query, is_headless):
     print(f"Searching for projects in GULP with search_query={search_query}...")
-    if is_headless:
-        chrome_options = Options()
-        chrome_options.add_argument("--headless")
-        chrome_options.add_argument("--no-sandbox")
-    else:
-        chrome_options = None
+    driver = helpers.create_driver(is_headless)
 
-    driver = webdriver.Chrome(executable_path=CHROME_PATH, options=chrome_options)  # Optional argument, if not specified will search path.
     driver.get(URL)
     helpers.find(driver, 'onetrust-accept-btn-handler', By.ID)\
         .click()
