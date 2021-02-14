@@ -23,6 +23,14 @@
         {
           "name": "AWS_DEFAULT_REGION",
           "value": "eu-central-1"
+        },
+        {
+          "name": "FREELANCE_DE_USER",
+          "value": "den.iu7@gmail.com"
+        },
+        {
+          "name": "FREELANCE_DE_PASSWORD",
+          "value": "qwerty123"
         }
       ],
       "resourceRequirements": null,

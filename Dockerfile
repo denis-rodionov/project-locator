@@ -24,4 +24,4 @@ RUN pip install selenium
 RUN mkdir /code
 ADD . /code
 RUN pip install -r /code/requirements.txt
-ENTRYPOINT ["/bin/bash", "-c", "python /code/main.py gulp devops; python /code/main.py gulp java"]
+ENTRYPOINT ["/bin/bash", "-c", "python /code/main.py freelance_de java; python /code/main.py gulp devops; python /code/main.py gulp java"]
