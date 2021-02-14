@@ -14,8 +14,9 @@ FIELD_MAP = {
     "Voraussichtliches Ende": "end"
 }
 
+
 def find_projects(search_query, is_headless):
-    print(f"Searching for projects in Freelance.de with search_query={search_query}...")
+    print(f"Searching for projects in Freelance.de with search_query='{search_query}' (headless={is_headless})...")
     driver = helpers.create_driver(is_headless)
 
 

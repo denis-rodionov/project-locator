@@ -26,7 +26,7 @@ FIELD_MAP = {
 
 
 def find_projects(search_query, is_headless):
-    print(f"Searching for projects in GULP with search_query={search_query}...")
+    print(f"Searching for projects in GULP with search_query='{search_query}' (headless={is_headless})...")
     driver = helpers.create_driver(is_headless)
 
     driver.get(URL)
