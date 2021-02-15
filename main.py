@@ -32,24 +32,28 @@ if __name__ == '__main__':
 
     headless = not debugMode
 
-    projects = []
-    if source == 'gulp':
-        projects = gulp_grabber.find_projects(query, headless)
-    elif source == 'freelance_de':
-        projects = freelance_grabber.find_projects(query, headless)
-    else:
-        print("ERROR: source is unknown:", source)
-
-    info_print(projects)
-    added = 0
-    print("Saving the results into the database...")
-    for project in projects:
-        if not debugMode:
-            added_project = dynamodb.create_project_if_not_exists(project)
+    try:
+        projects = []
+        if source == 'gulp':
+            projects = gulp_grabber.find_projects(query, headless)
+        elif source == 'freelance_de':
+            projects = freelance_grabber.find_projects(query, headless)
         else:
-            added_project = None
-        if added_project:
-            added += 1
+            print("ERROR: source is unknown:", source)
 
-    print(f"By query '{query}' found {len(projects)} projects. Added to database: {added}")
+        info_print(projects)
+        added = 0
+        print("Saving the results into the database...")
+        for project in projects:
+            if not debugMode:
+                added_project = dynamodb.create_project_if_not_exists(project)
+            else:
+                added_project = None
+            if added_project:
+                added += 1
+
+        print(f"By query '{query}' found {len(projects)} projects. Added to database: {added}")
+    except Exception as err:
+        print("ERROR: exception catched:", err)
+        exit(1)
 
