@@ -100,7 +100,8 @@ def parse_project_details(driver, project):
         domain_field_name = FIELD_MAP.get(title)
         if not domain_field_name:
             print(f"WARNING: unknown field '{title}'")
-        project[domain_field_name] = field.text
+        else:
+            project[domain_field_name] = field.text
 
 
 def login(driver, username, password):
