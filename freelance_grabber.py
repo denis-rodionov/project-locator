@@ -35,10 +35,10 @@ def find_projects(search_query, is_headless):
 
     # sort by date
     helpers.find(driver, "//button[@data-id='__search_sort_by_remote']").click()
-    helpers.find(driver, "//span/div/div/ul/li[2]/a").click()
+    helpers.find(driver, "//*[@id='__search']/div[2]/span/div/div/div/ul/li[2]/a").click()
 
     # parsing project links
-    links = helpers.find_objects(driver, "//div[@class='freelancer-content']/h3/a")
+    links = helpers.find_objects(driver, "//div[@class='list-item-main']/h3/a")
 
     projects = []
     link_num = 0
@@ -62,7 +62,7 @@ def parse_project(driver, search_query):
     project["search_query"] = search_query
 
     # project title
-    project['title'] = helpers.find(driver, "//div[@class='panel-body project-header panel-white']/h1").text
+    project['title'] = helpers.find(driver, "//div[@class='panel-body project-header row']/div[2]/h1").text
 
     # details
     parse_project_details(driver, project)
@@ -86,7 +86,7 @@ def parse_project(driver, search_query):
 
 
 def parse_project_details(driver, project):
-    fields = helpers.find_objects(driver, "//div[@class='project-right-content']//p")
+    fields = helpers.find_objects(driver, "//div[@class='overview']/ul/li")
     for field in fields:
         title_elements = helpers.find_objects(field, "i", By.TAG_NAME, False)
         if not title_elements:
@@ -108,7 +108,7 @@ def login(driver, username, password):
     driver.get("https://www.freelance.de/login.php")
 
     # agree to compliance policy
-    helpers.find(driver, "//a[@class='cc-btn cc-dismiss']").click()
+    helpers.find(driver, "//a[@id='CybotCookiebotDialogBodyButtonAccept']").click()
 
     helpers.find(driver, "//input[@id='username']").send_keys(username)
     helpers.find(driver, "//input[@id='password']").send_keys(password)
